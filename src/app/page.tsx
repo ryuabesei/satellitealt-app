@@ -37,9 +37,20 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<AltitudeResponse | null>(null);
 
+  // datetime-local の値(ローカル時刻)を、バックエンド要求の UTC ISO8601 "Z付き" に変換
+  const toUTCISOString = (localDateTime: string) => {
+    // localDateTime 例: "2026-01-01T12:34:56" (JST等のローカル)
+    const d = new Date(localDateTime);
+    if (Number.isNaN(d.getTime())) {
+      throw new Error("Invalid date/time format");
+    }
+    return d.toISOString().replace(".000Z", "Z"); // "2026-01-01T03:34:56Z"
+  };
+
   // Set default date values after mount to avoid hydration mismatch
   useEffect(() => {
     const now = new Date();
+    // datetime-local に入れるのでローカル時刻の文字列（Zは付けない）
     setEndTime(format(now, "yyyy-MM-dd'T'HH:mm:ss"));
     setStartTime(format(subHours(now, 6), "yyyy-MM-dd'T'HH:mm:ss"));
   }, []);
@@ -52,19 +63,31 @@ export default function Home() {
 
     try {
       const backendUrl =
-        process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+        process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000";
+
+      // ここで UTC(Z付き) に正規化して送る
+      const startUTC = toUTCISOString(startTime);
+      const endUTC = toUTCISOString(endTime);
+
       const params = new URLSearchParams({
         n: noradId,
-        start: `${startTime}Z`,
-        end: `${endTime}Z`,
+        start: startUTC,
+        end: endUTC,
         step_seconds: stepSeconds,
       });
 
-      const response = await fetch(`${backendUrl}/altitude?${params}`);
+      const response = await fetch(`${backendUrl}/altitude?${params.toString()}`);
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "Failed to fetch altitude data");
+        // 可能なら json を読む（CORSやネットワークエラー時はここに来る前に throw される）
+        let detail = "Failed to fetch altitude data";
+        try {
+          const errorData = await response.json();
+          detail = errorData?.detail || detail;
+        } catch {
+          // ignore
+        }
+        throw new Error(detail);
       }
 
       const result: AltitudeResponse = await response.json();
@@ -87,9 +110,7 @@ export default function Home() {
           <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 mb-4">
             🛰️ {t.header.title}
           </h1>
-          <p className="text-gray-300 text-lg">
-            {t.header.subtitle}
-          </p>
+          <p className="text-gray-300 text-lg">{t.header.subtitle}</p>
         </header>
 
         {/* Form Card */}
@@ -111,9 +132,7 @@ export default function Home() {
                   min="1"
                   placeholder={t.form.noradId.placeholder}
                 />
-                <p className="text-gray-400 text-sm mt-1">
-                  {t.form.noradId.help}
-                </p>
+                <p className="text-gray-400 text-sm mt-1">{t.form.noradId.help}</p>
               </div>
 
               {/* Step Seconds */}
@@ -132,9 +151,7 @@ export default function Home() {
                   max="3600"
                   placeholder={t.form.stepSeconds.placeholder}
                 />
-                <p className="text-gray-400 text-sm mt-1">
-                  {t.form.stepSeconds.help}
-                </p>
+                <p className="text-gray-400 text-sm mt-1">{t.form.stepSeconds.help}</p>
               </div>
 
               {/* Start Time */}
@@ -149,6 +166,7 @@ export default function Home() {
                   onChange={(e) => setStartTime(e.target.value)}
                   className="form-input"
                   required
+                  step="1"
                 />
               </div>
 
@@ -164,16 +182,13 @@ export default function Home() {
                   onChange={(e) => setEndTime(e.target.value)}
                   className="form-input"
                   required
+                  step="1"
                 />
               </div>
             </div>
 
             {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full"
-            >
+            <button type="submit" disabled={loading} className="btn-primary w-full">
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <svg
@@ -241,21 +256,15 @@ export default function Home() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="stat-card">
                   <div className="text-gray-400 text-sm">{t.results.noradId}</div>
-                  <div className="text-white text-2xl font-bold">
-                    {data.norad_id}
-                  </div>
+                  <div className="text-white text-2xl font-bold">{data.norad_id}</div>
                 </div>
                 <div className="stat-card">
                   <div className="text-gray-400 text-sm">{t.results.dataPoints}</div>
-                  <div className="text-white text-2xl font-bold">
-                    {data.points.length}
-                  </div>
+                  <div className="text-white text-2xl font-bold">{data.points.length}</div>
                 </div>
                 <div className="stat-card">
                   <div className="text-gray-400 text-sm">{t.results.tleEpoch}</div>
-                  <div className="text-white text-lg font-mono">
-                    {data.meta.tle_epoch}
-                  </div>
+                  <div className="text-white text-lg font-mono">{data.meta.tle_epoch}</div>
                 </div>
               </div>
             </div>
@@ -273,14 +282,8 @@ export default function Home() {
                       y: data.points.map((p) => p.alt_km),
                       type: "scatter",
                       mode: "lines+markers",
-                      line: {
-                        color: "rgb(99, 102, 241)",
-                        width: 3,
-                      },
-                      marker: {
-                        color: "rgb(99, 102, 241)",
-                        size: 4,
-                      },
+                      line: { color: "rgb(99, 102, 241)", width: 3 },
+                      marker: { color: "rgb(99, 102, 241)", size: 4 },
                       name: "Altitude",
                     },
                   ]}
@@ -288,10 +291,7 @@ export default function Home() {
                     autosize: true,
                     paper_bgcolor: "rgba(0,0,0,0)",
                     plot_bgcolor: "rgba(0,0,0,0)",
-                    font: {
-                      color: "#e5e7eb",
-                      family: "system-ui, -apple-system, sans-serif",
-                    },
+                    font: { color: "#e5e7eb", family: "system-ui, -apple-system, sans-serif" },
                     xaxis: {
                       title: t.results.timeUTC,
                       gridcolor: "rgba(255,255,255,0.1)",
@@ -307,11 +307,7 @@ export default function Home() {
                     margin: { t: 20, r: 20, b: 60, l: 60 },
                     hovermode: "closest",
                   }}
-                  config={{
-                    responsive: true,
-                    displayModeBar: true,
-                    displaylogo: false,
-                  }}
+                  config={{ responsive: true, displayModeBar: true, displaylogo: false }}
                   style={{ width: "100%", height: "500px" }}
                 />
               </div>
@@ -324,34 +320,26 @@ export default function Home() {
                 <div className="stat-card">
                   <div className="text-gray-400 text-sm">{t.results.minAltitude}</div>
                   <div className="text-white text-xl font-bold">
-                    {Math.min(...data.points.map((p) => p.alt_km)).toFixed(2)}{" "}
-                    {t.results.km}
+                    {Math.min(...data.points.map((p) => p.alt_km)).toFixed(2)} {t.results.km}
                   </div>
                 </div>
                 <div className="stat-card">
                   <div className="text-gray-400 text-sm">{t.results.maxAltitude}</div>
                   <div className="text-white text-xl font-bold">
-                    {Math.max(...data.points.map((p) => p.alt_km)).toFixed(2)}{" "}
-                    {t.results.km}
+                    {Math.max(...data.points.map((p) => p.alt_km)).toFixed(2)} {t.results.km}
                   </div>
                 </div>
                 <div className="stat-card">
                   <div className="text-gray-400 text-sm">{t.results.avgAltitude}</div>
                   <div className="text-white text-xl font-bold">
-                    {(
-                      data.points.reduce((sum, p) => sum + p.alt_km, 0) /
-                      data.points.length
-                    ).toFixed(2)}{" "}
+                    {(data.points.reduce((sum, p) => sum + p.alt_km, 0) / data.points.length).toFixed(2)}{" "}
                     {t.results.km}
                   </div>
                 </div>
                 <div className="stat-card">
                   <div className="text-gray-400 text-sm">{t.results.range}</div>
                   <div className="text-white text-xl font-bold">
-                    {(
-                      Math.max(...data.points.map((p) => p.alt_km)) -
-                      Math.min(...data.points.map((p) => p.alt_km))
-                    ).toFixed(2)}{" "}
+                    {(Math.max(...data.points.map((p) => p.alt_km)) - Math.min(...data.points.map((p) => p.alt_km))).toFixed(2)}{" "}
                     {t.results.km}
                   </div>
                 </div>
