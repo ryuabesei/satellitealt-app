@@ -9,9 +9,14 @@ import LanguageSwitch from "@/components/LanguageSwitch";
 // Dynamically import Plotly to avoid SSR issues
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
 
+// Dynamically import map to avoid SSR issues (Leaflet needs browser DOM)
+const SatelliteMap = dynamic(() => import("@/components/SatelliteMap"), { ssr: false });
+
 interface DataPoint {
   t: string;
   alt_km: number;
+  lat: number;
+  lon: number;
 }
 
 interface AltitudeResponse {
@@ -307,6 +312,14 @@ export default function Home() {
                   style={{ width: "100%", height: "500px" }}
                 />
               </div>
+            </div>
+
+            {/* Ground Track Map */}
+            <div className="glass-card rounded-2xl p-6">
+              <h2 className="text-2xl font-bold text-white mb-4">
+                🗺️ {(t.results as Record<string, string>)["groundTrack"] ?? "Satellite Ground Track"}
+              </h2>
+              <SatelliteMap points={data.points} />
             </div>
 
             {/* Statistics Card */}

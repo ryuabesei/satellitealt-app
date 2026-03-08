@@ -39,6 +39,7 @@
         "range": "Range",
         "timeUTC": "Time (UTC)",
         "altitudeKm": "Altitude (km)",
-        "km": "km"
+        "km": "km",
+        "groundTrack": "Satellite Ground Track"
     }
 }

@@ -39,6 +39,7 @@
         "range": "変動範囲",
         "timeUTC": "時刻 (UTC)",
         "altitudeKm": "高度 (km)",
-        "km": "km"
+        "km": "km",
+        "groundTrack": "衛星グラウンドトラック"
     }
 }

@@ -94,6 +94,11 @@ export async function GET(req: NextRequest) {
       const position = positionAndVelocity?.position;
 
       if (position && typeof position !== "boolean") {
+        const gmst = satellite.gstime(current);
+        const geodetic = satellite.eciToGeodetic(position, gmst);
+        const lat = satellite.degreesLat(geodetic.latitude);
+        const lon = satellite.degreesLong(geodetic.longitude);
+
         const distance = Math.sqrt(
           position.x * position.x +
           position.y * position.y +
@@ -103,6 +108,8 @@ export async function GET(req: NextRequest) {
         points.push({
           t: current.toISOString(),
           alt_km: Number(altitude.toFixed(2)),
+          lat: Number(lat.toFixed(4)),
+          lon: Number(lon.toFixed(4)),
         });
       }
 
