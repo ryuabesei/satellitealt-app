@@ -14,7 +14,8 @@
     "plotly.js": "^2.35.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-plotly.js": "^2.6.0"
+    "react-plotly.js": "^2.6.0",
+    "satellite.js": "^6.0.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

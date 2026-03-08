@@ -62,9 +62,6 @@ export default function Home() {
     setData(null);
 
     try {
-      const backendUrl =
-        process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000";
-
       // ここで UTC(Z付き) に正規化して送る
       const startUTC = toUTCISOString(startTime);
       const endUTC = toUTCISOString(endTime);
@@ -76,7 +73,7 @@ export default function Home() {
         step_seconds: stepSeconds,
       });
 
-      const response = await fetch(`${backendUrl}/altitude?${params.toString()}`);
+    const response = await fetch(`/api/altitude?${params.toString()}`);
 
       if (!response.ok) {
         // 可能なら json を読む（CORSやネットワークエラー時はここに来る前に throw される）
