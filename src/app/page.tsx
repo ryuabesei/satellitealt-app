@@ -29,6 +29,8 @@ interface AltitudeResponse {
     tle_source: string;
     tle_epoch: string;
     earth_radius_km: number;
+    tle1: string;
+    tle2: string;
   };
 }
 
@@ -319,7 +321,7 @@ export default function Home() {
               <h2 className="text-2xl font-bold text-white mb-4">
                 🗺️ {(t.results as Record<string, string>)["groundTrack"] ?? "Satellite Ground Track"}
               </h2>
-              <SatelliteMap points={data.points} />
+              <SatelliteMap points={data.points} tle1={data.meta.tle1} tle2={data.meta.tle2} />
             </div>
 
             {/* Statistics Card */}

@@ -128,6 +128,8 @@ export async function GET(req: NextRequest) {
         tle_source: "celestrak",
         tle_epoch: tle_epoch_str,
         earth_radius_km: EARTH_RADIUS_KM,
+        tle1: line1,
+        tle2: line2,
       },
     });
   } catch (err) {
