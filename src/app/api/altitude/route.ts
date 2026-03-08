@@ -91,19 +91,15 @@ export async function GET(req: NextRequest) {
 
     while (current <= end) {
       const positionAndVelocity = satellite.propagate(satrec, current);
+      const position = positionAndVelocity?.position;
 
-      const position = positionAndVelocity.position;
-
-      if (position) {
-        const distance =
-          Math.sqrt(
-            position.x * position.x +
-            position.y * position.y +
-            position.z * position.z
-          );
-
+      if (position && typeof position !== "boolean") {
+        const distance = Math.sqrt(
+          position.x * position.x +
+          position.y * position.y +
+          position.z * position.z
+        );
         const altitude = distance - EARTH_RADIUS_KM;
-
         points.push({
           t: current.toISOString(),
           alt_km: Number(altitude.toFixed(2)),
