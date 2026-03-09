@@ -12,6 +12,9 @@ const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
 // Dynamically import map to avoid SSR issues (Leaflet needs browser DOM)
 const SatelliteMap = dynamic(() => import("@/components/SatelliteMap"), { ssr: false });
 
+// Dynamically import 3D globe (Cesium needs browser DOM + WebGL)
+const SatelliteGlobe = dynamic(() => import("@/components/SatelliteGlobe"), { ssr: false });
+
 interface DataPoint {
   t: string;
   alt_km: number;
@@ -322,6 +325,14 @@ export default function Home() {
                 🗺️ {(t.results as Record<string, string>)["groundTrack"] ?? "Satellite Ground Track"}
               </h2>
               <SatelliteMap points={data.points} tle1={data.meta.tle1} tle2={data.meta.tle2} />
+            </div>
+
+            {/* 3D Globe */}
+            <div className="glass-card rounded-2xl p-6">
+              <h2 className="text-2xl font-bold text-white mb-4">
+                🌍 {(t.results as Record<string, string>)["view3d"] ?? "3D Satellite View"}
+              </h2>
+              <SatelliteGlobe points={data.points} tle1={data.meta.tle1} tle2={data.meta.tle2} />
             </div>
 
             {/* Statistics Card */}

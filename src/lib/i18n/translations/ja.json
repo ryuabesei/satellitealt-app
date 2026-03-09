@@ -40,6 +40,7 @@
         "timeUTC": "時刻 (UTC)",
         "altitudeKm": "高度 (km)",
         "km": "km",
-        "groundTrack": "衛星グラウンドトラック"
+        "groundTrack": "衛星グラウンドトラック",
+        "view3d": "3D 衛星ビュー"
     }
 }

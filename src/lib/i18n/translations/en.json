@@ -40,6 +40,7 @@
         "timeUTC": "Time (UTC)",
         "altitudeKm": "Altitude (km)",
         "km": "km",
-        "groundTrack": "Satellite Ground Track"
+        "groundTrack": "Satellite Ground Track",
+        "view3d": "3D Satellite View"
     }
 }
