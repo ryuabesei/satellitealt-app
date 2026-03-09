@@ -40,6 +40,7 @@ async function fetchTLE(norad: number) {
   }
 
   return {
+    name: lines[0].trim(),
     line1: lines[1],
     line2: lines[2],
   };
@@ -82,7 +83,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const { line1, line2 } = await fetchTLE(norad);
+    const { name: satelliteName, line1, line2 } = await fetchTLE(norad);
 
     const satrec = satellite.twoline2satrec(line1, line2);
 
@@ -130,6 +131,7 @@ export async function GET(req: NextRequest) {
         earth_radius_km: EARTH_RADIUS_KM,
         tle1: line1,
         tle2: line2,
+        satellite_name: satelliteName,
       },
     });
   } catch (err) {

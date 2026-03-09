@@ -41,6 +41,17 @@
         "altitudeKm": "高度 (km)",
         "km": "km",
         "groundTrack": "衛星グラウンドトラック",
-        "view3d": "3D 衛星ビュー"
+        "view3d": "3D 衛星ビュー",
+        "satelliteInfo": "衛星情報",
+        "infoName": "衛星名",
+        "infoNoradId": "NORAD ID",
+        "infoAltitude": "高度",
+        "infoVelocity": "速度",
+        "infoPeriod": "軌道周期",
+        "infoInclination": "軌道傾斜角",
+        "infoEccentricity": "離心率",
+        "infoTleEpoch": "TLE エポック",
+        "infoLaunchDate": "打上げ日",
+        "infoOperator": "運用者 / 国"
     }
 }

@@ -15,6 +15,12 @@ const SatelliteMap = dynamic(() => import("@/components/SatelliteMap"), { ssr: f
 // Dynamically import 3D globe (Cesium needs browser DOM + WebGL)
 const SatelliteGlobe = dynamic(() => import("@/components/SatelliteGlobe"), { ssr: false });
 
+// SatelliteInfoPanel is client-only (uses satellite.js + Celestrak fetch)
+const SatelliteInfoPanel = dynamic(
+  () => import("@/components/SatelliteInfoPanel"),
+  { ssr: false }
+);
+
 interface DataPoint {
   t: string;
   alt_km: number;
@@ -34,6 +40,7 @@ interface AltitudeResponse {
     earth_radius_km: number;
     tle1: string;
     tle2: string;
+    satellite_name: string;
   };
 }
 
@@ -333,6 +340,19 @@ export default function Home() {
                 🌍 {(t.results as Record<string, string>)["view3d"] ?? "3D Satellite View"}
               </h2>
               <SatelliteGlobe points={data.points} tle1={data.meta.tle1} tle2={data.meta.tle2} />
+            </div>
+
+            {/* Satellite Information Panel */}
+            <div className="glass-card rounded-2xl p-6">
+              <h2 className="text-2xl font-bold text-white mb-6">
+                🛰️ {(t.results as Record<string, string>)["satelliteInfo"] ?? "Satellite Information"}
+              </h2>
+              <SatelliteInfoPanel
+                noradId={data.norad_id}
+                satelliteName={data.meta.satellite_name}
+                tle1={data.meta.tle1}
+                tle2={data.meta.tle2}
+              />
             </div>
 
             {/* Statistics Card */}

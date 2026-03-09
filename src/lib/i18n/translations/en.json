@@ -41,6 +41,17 @@
         "altitudeKm": "Altitude (km)",
         "km": "km",
         "groundTrack": "Satellite Ground Track",
-        "view3d": "3D Satellite View"
+        "view3d": "3D Satellite View",
+        "satelliteInfo": "Satellite Information",
+        "infoName": "Name",
+        "infoNoradId": "NORAD ID",
+        "infoAltitude": "Altitude",
+        "infoVelocity": "Velocity",
+        "infoPeriod": "Orbital Period",
+        "infoInclination": "Inclination",
+        "infoEccentricity": "Eccentricity",
+        "infoTleEpoch": "TLE Epoch",
+        "infoLaunchDate": "Launch Date",
+        "infoOperator": "Operator / Country"
     }
 }
